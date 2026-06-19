@@ -5,21 +5,13 @@
   "name": "magdalenaborowska-pl",
   "compatibility_date": "2025-06-01",
   "compatibility_flags": ["nodejs_compat"],
-  "pages_build_output_dir": "dist",
+  "pages_build_output_dir": "dist"
 
-  // Wymagane przez adapter @astrojs/cloudflare (sesje). Utwórz namespace:
+  // KV dla sesji — potrzebne dopiero gdy włączysz Keystatic online (/keystatic) na prod.
+  // Strona publiczna (statyczna, za Cloudflare Access) tego nie wymaga. Aby włączyć:
   //   npx wrangler kv namespace create SESSION
-  // i wklej zwrócone "id" poniżej (oraz preview_id dla previewów).
-  "kv_namespaces": [
-    {
-      "binding": "SESSION",
-      "id": "WKLEJ_KV_ID"
-      // "preview_id": "WKLEJ_KV_PREVIEW_ID"
-    }
-  ]
-
-  // --- Opcjonalnie: R2 dla galerii (jeśli wybierzesz R2 zamiast Cloudflare Images) ---
-  // "r2_buckets": [
-  //   { "binding": "GALLERY", "bucket_name": "magdalenaborowska-gallery" }
+  // a następnie odkomentuj i wklej zwrócone "id":
+  // "kv_namespaces": [
+  //   { "binding": "SESSION", "id": "WKLEJ_KV_ID" }
   // ]
 }
