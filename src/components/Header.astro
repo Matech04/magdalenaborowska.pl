@@ -1,0 +1,52 @@
+---
+import brand from '../content/settings/brand.json';
+import SocialLinks from './SocialLinks.astro';
+
+const nav = [
+  { href: '#o-mnie', label: 'O mnie' },
+  { href: '#uslugi', label: 'Usługi' },
+  { href: '#szkolenia', label: 'Szkolenia' },
+  { href: '#zespol', label: 'Zespół' },
+  { href: '#galeria', label: 'Galeria' },
+  { href: '#kontakt', label: 'Kontakt' },
+];
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-line/70 bg-ivory/85 backdrop-blur-md"
+>
+  <nav
+    class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 lg:px-8"
+    aria-label="Główna nawigacja"
+  >
+    <a
+      href="#hero"
+      class="font-display text-lg tracking-tight text-ink"
+      aria-label={`${brand.name} — strona główna`}
+    >
+      {brand.name}
+    </a>
+
+    <ul class="hidden items-center gap-8 text-sm text-muted lg:flex">
+      {
+        nav.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              class="link-underline transition-colors hover:text-ink"
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="flex items-center gap-4 lg:gap-5">
+      <SocialLinks size="sm" class="hidden lg:flex" />
+      <a href={brand.bookingUrl} class="btn-primary px-5 py-2.5">
+        Umów wizytę
+      </a>
+    </div>
+  </nav>
+</header>

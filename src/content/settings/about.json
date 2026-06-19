@@ -1,0 +1,20 @@
+{
+  "eyebrow": "O mnie",
+  "heading": "Pasja do detalu, którą widać na dłoniach",
+  "body": "Salon Magdaleny Borowskiej to miejsce, w którym stylizacja paznokci jest sztuką. Łączymy najwyższej jakości produkty z indywidualnym podejściem do każdej klientki — od klasycznego, eleganckiego manicure po wymagający nail art. Dzielimy się też wiedzą, prowadząc szkolenia dla osób, które chcą rozwijać się w branży.",
+  "image": "/src/assets/images/about/image.jpg",
+  "stats": [
+    {
+      "value": "4",
+      "label": "stylistki w zespole"
+    },
+    {
+      "value": "100%",
+      "label": "indywidualnego podejścia"
+    },
+    {
+      "value": "Zielona Góra",
+      "label": "nasze miejsce"
+    }
+  ]
+}

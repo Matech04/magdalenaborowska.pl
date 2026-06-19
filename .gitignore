@@ -1,0 +1,36 @@
+# build output
+dist/
+.output/
+.vercel/
+.netlify/
+.wrangler/
+
+# dependencies
+node_modules/
+
+# astro
+.astro/
+
+# environment
+.env
+.env.production
+.env.*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# os / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+
+# Keystatic local cache
+.keystatic/
+
+# UWAGA: zdjęcia trzymamy w repo (src/assets/images/) — Keystatic je commituje,
+# astro:assets optymalizuje przy buildzie. NIE ignorujemy ich tutaj.
+# Trzymaj galerię kuratorowaną i wrzucaj źródła ~1600 px, by repo nie puchło.

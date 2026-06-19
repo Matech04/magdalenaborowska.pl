@@ -1,0 +1,48 @@
+---
+import { Icon } from 'astro-icon/components';
+import brand from '../content/settings/brand.json';
+
+interface Props {
+  variant?: 'light' | 'dark';
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+const { variant = 'light', size = 'md', class: className = '' } = Astro.props;
+
+const iconFor = (label: string) => {
+  const k = label.toLowerCase();
+  if (k.includes('insta')) return 'lucide:instagram';
+  if (k.includes('face')) return 'lucide:facebook';
+  if (k.includes('tik')) return 'lucide:music-2';
+  return 'lucide:link';
+};
+
+const socials = (brand.social ?? []).filter((s) => s.url && s.url.trim());
+const box = size === 'lg' ? 'size-12' : size === 'sm' ? 'size-9' : 'size-11';
+const icon = size === 'lg' ? 'size-5' : size === 'sm' ? 'size-4' : 'size-[1.15rem]';
+const theme =
+  variant === 'dark'
+    ? 'border-cream/20 text-cream/85 hover:border-gold hover:bg-gold hover:text-charcoal'
+    : 'border-line text-bronze hover:border-gold hover:bg-gold hover:text-ivory';
+---
+
+{
+  socials.length > 0 && (
+    <ul class={`flex flex-wrap items-center gap-3 ${className}`}>
+      {socials.map((s) => (
+        <li>
+          <a
+            href={s.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={s.label}
+            title={s.label}
+            class={`flex ${box} items-center justify-center rounded-full border transition-[color,background-color,border-color,transform] duration-300 hover:-translate-y-0.5 ${theme}`}
+          >
+            <Icon name={iconFor(s.label)} class={icon} />
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}

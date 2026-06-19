@@ -1,0 +1,36 @@
+{
+  "name": "Magdalena Borowska",
+  "tagline": "stylizacja paznokci & szkolenia",
+  "city": "Zielona Góra",
+  "logo": null,
+  "phone": "",
+  "email": "",
+  "address": "ul. Sobieskiego 9a/2, Zielona Góra",
+  "mapUrl": "https://maps.app.goo.gl/3dY7Hx9Emneo6pCB9",
+  "geo": "51.9380197, 15.5036446",
+  "bookingUrl": "https://rezerwacja.magdalenaborowska.pl",
+  "hours": [
+    {
+      "day": "Poniedziałek – Piątek",
+      "value": "9:00 – 19:00"
+    },
+    {
+      "day": "Sobota",
+      "value": "9:00 – 14:00"
+    },
+    {
+      "day": "Niedziela",
+      "value": "nieczynne"
+    }
+  ],
+  "social": [
+    {
+      "label": "Instagram",
+      "url": "https://www.instagram.com/_magdalena_borowska_/"
+    },
+    {
+      "label": "Facebook",
+      "url": "https://www.facebook.com/people/Magdalena-Borowska-nails/100090083631012/"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import brand from '../content/settings/brand.json';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = `${brand.name} — stylizacja paznokci & szkolenia, ${brand.city}`,
+  description = `Premium stylizacja paznokci i szkolenia — salon ${brand.name} w ${brand.city}. Manicure, przedłużanie, nail art. Umów wizytę.`,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+// JSON-LD — lokalne SEO „stylizacja paznokci Zielona Góra"
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': ['NailSalon', 'HealthAndBeautyBusiness', 'LocalBusiness'],
+  name: brand.name,
+  description,
+  url: Astro.site?.href,
+  ...(brand.phone ? { telephone: brand.phone } : {}),
+  ...(brand.email ? { email: brand.email } : {}),
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: brand.city,
+    addressCountry: 'PL',
+    streetAddress: brand.address,
+  },
+  areaServed: brand.city,
+  ...(brand.mapUrl ? { hasMap: brand.mapUrl } : {}),
+  sameAs: (brand.social ?? []).map((s) => s.url).filter(Boolean),
+};
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- PRYWATNOŚĆ DO ODSŁONY: cała strona noindex (CLAUDE.md) -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="theme-color" content="#fbf9f6" />
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(jsonLd)}
+    />
+
+    <ClientRouter />
+  </head>
+  <body>
+    <slot />
+
+    <!-- Subtelny scroll-reveal (respektuje prefers-reduced-motion przez CSS) -->
+    <script>
+      const setup = () => {
+        const els = document.querySelectorAll<HTMLElement>('.reveal');
+        if (!('IntersectionObserver' in window)) {
+          els.forEach((el) => el.classList.add('is-visible'));
+          return;
+        }
+        // Stagger: rodzeństwo .reveal w tym samym kontenerze wchodzi po kolei.
+        const seen = new Map<Element, number>();
+        els.forEach((el) => {
+          const parent = el.parentElement;
+          if (!parent) return;
+          const i = seen.get(parent) ?? 0;
+          if (i > 0) el.style.setProperty('--reveal-delay', `${Math.min(i, 5) * 70}ms`);
+          seen.set(parent, i + 1);
+        });
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
+              }
+            });
+          },
+          { rootMargin: '0px 0px -10% 0px', threshold: 0.1 },
+        );
+        els.forEach((el) => io.observe(el));
+      };
+      setup();
+      document.addEventListener('astro:after-swap', setup);
+    </script>
+  </body>
+</html>

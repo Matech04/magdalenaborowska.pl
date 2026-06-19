@@ -1,0 +1,213 @@
+---
+import { Icon } from 'astro-icon/components';
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { getCollection } from 'astro:content';
+
+const localImages = import.meta.glob<ImageMetadata>(
+  '/src/assets/images/**/*.{jpeg,jpg,png,webp,avif,gif}',
+  { eager: true, import: 'default' },
+);
+
+const items = (await getCollection('gallery')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+// Przygotuj miniatury (metadane) + duże wersje do lightboxa.
+const prepared = await Promise.all(
+  items.map(async (item) => {
+    const src = item.data.image?.trim() ? item.data.image : null;
+    const meta = src ? localImages[src] : undefined;
+    let full: string | null = null;
+    if (meta) {
+      const img = await getImage({
+        src: meta,
+        width: Math.min(1600, meta.width),
+        format: 'webp',
+      });
+      full = img.src;
+    }
+    return { item, meta, full };
+  }),
+);
+
+// Tylko wpisy ze zdjęciem trafiają do lightboxa (indeksy spójne).
+const lightbox = prepared.filter((p) => p.meta && p.full);
+const lightboxData = lightbox.map((p) => ({
+  src: p.full,
+  alt: p.item.data.alt,
+  caption: p.item.data.caption ?? '',
+}));
+---
+
+<section id="galeria" class="scroll-mt-20 border-t border-line bg-ivory py-20 lg:py-28">
+  <div class="mx-auto max-w-6xl px-5 lg:px-8">
+    <div class="reveal max-w-2xl">
+      <p class="eyebrow">Realizacje</p>
+      <h2 class="mt-4 text-balance text-3xl text-ink sm:text-4xl lg:text-5xl">
+        Galeria nail art
+      </h2>
+      <p class="mt-5 text-lg leading-relaxed text-muted">
+        Najlepszy dowód jakości — wybrane prace prosto z salonu.
+      </p>
+    </div>
+
+    <div class="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-3">
+      {
+        prepared.map(({ item, meta }) => {
+          const lbIndex = lightbox.findIndex((p) => p.item.id === item.id);
+          const tile =
+            'reveal group relative aspect-[4/5] overflow-hidden rounded-(--radius-brand) bg-charcoal/90';
+
+          if (meta) {
+            return (
+              <button
+                type="button"
+                class={`gallery-item ${tile} cursor-zoom-in`}
+                data-index={lbIndex}
+                aria-label={`Powiększ: ${item.data.alt}`}
+              >
+                <Image
+                  src={meta}
+                  alt={item.data.alt}
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  widths={[400, 600, 800, 1000]}
+                  sizes="(min-width: 1024px) 33vw, 50vw"
+                />
+                <span class="pointer-events-none absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-ink/45 text-cream/90 opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
+                  <Icon name="lucide:expand" class="size-4" />
+                </span>
+                {item.data.caption && (
+                  <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/85 to-transparent px-4 pb-3 pt-10 text-left text-xs tracking-wide text-cream/90">
+                    {item.data.caption}
+                  </span>
+                )}
+              </button>
+            );
+          }
+
+          return (
+            <div class={tile}>
+              <div class="flex h-full w-full flex-col items-center justify-center gap-2 text-cream/60">
+                <Icon name="lucide:image" class="size-8" />
+                <span class="px-4 text-center text-xs leading-snug">{item.data.alt}</span>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </div>
+
+  {/* Lightbox */}
+  <dialog
+    id="lightbox"
+    class="lightbox m-auto w-full max-w-5xl bg-transparent p-4 text-cream"
+  >
+    <div class="relative">
+      <img id="lb-img" alt="" class="mx-auto max-h-[82vh] w-auto rounded-(--radius-brand) shadow-2xl" />
+      <p id="lb-caption" class="mt-4 text-center text-sm tracking-wide text-cream/90"></p>
+
+      <button
+        type="button"
+        data-lb-close
+        aria-label="Zamknij"
+        class="absolute -top-3 right-0 flex size-10 items-center justify-center rounded-full bg-ink/70 text-cream backdrop-blur transition-colors hover:bg-ink sm:-right-3"
+      >
+        <Icon name="lucide:x" class="size-5" />
+      </button>
+      <button
+        type="button"
+        data-lb-prev
+        aria-label="Poprzednie zdjęcie"
+        class="absolute left-1 top-[41%] flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-ink/65 text-cream backdrop-blur transition-colors hover:bg-ink sm:-left-4"
+      >
+        <Icon name="lucide:chevron-left" class="size-6" />
+      </button>
+      <button
+        type="button"
+        data-lb-next
+        aria-label="Następne zdjęcie"
+        class="absolute right-1 top-[41%] flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-ink/65 text-cream backdrop-blur transition-colors hover:bg-ink sm:-right-4"
+      >
+        <Icon name="lucide:chevron-right" class="size-6" />
+      </button>
+    </div>
+  </dialog>
+
+  <script type="application/json" id="lightbox-data" set:html={JSON.stringify(lightboxData)} />
+</section>
+
+<script>
+  function initLightbox() {
+    const dialog = document.getElementById('lightbox') as HTMLDialogElement | null;
+    const dataEl = document.getElementById('lightbox-data');
+    if (!dialog || !dataEl || dialog.dataset.ready) return;
+    dialog.dataset.ready = 'true';
+
+    type Item = { src: string; alt: string; caption: string };
+    let data: Item[] = [];
+    try {
+      data = JSON.parse(dataEl.textContent || '[]');
+    } catch {
+      data = [];
+    }
+    if (!data.length) return;
+
+    const img = document.getElementById('lb-img') as HTMLImageElement;
+    const caption = document.getElementById('lb-caption') as HTMLElement;
+    let current = 0;
+
+    const render = () => {
+      const it = data[current];
+      img.src = it.src;
+      img.alt = it.alt;
+      caption.textContent = it.caption;
+    };
+    const open = (i: number) => {
+      current = (i + data.length) % data.length;
+      render();
+      if (!dialog.open) dialog.showModal();
+    };
+    const step = (d: number) => open(current + d);
+
+    document.querySelectorAll<HTMLElement>('.gallery-item').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.index);
+        if (Number.isFinite(i) && i >= 0) open(i);
+      });
+    });
+
+    dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => step(-1));
+    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => step(1));
+
+    // klik w tło (poza obrazem) zamyka
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!dialog.open) return;
+      if (e.key === 'ArrowRight') step(1);
+      else if (e.key === 'ArrowLeft') step(-1);
+    });
+  }
+
+  document.addEventListener('astro:page-load', initLightbox);
+</script>
+
+<style is:global>
+  #lightbox::backdrop {
+    background: rgb(18 17 16 / 0.92);
+    backdrop-filter: blur(3px);
+  }
+  #lightbox[open] {
+    animation: lb-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @keyframes lb-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
+</style>

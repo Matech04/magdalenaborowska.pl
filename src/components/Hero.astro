@@ -1,0 +1,72 @@
+---
+import { Icon } from 'astro-icon/components';
+import Img from './Img.astro';
+import brand from '../content/settings/brand.json';
+import hero from '../content/settings/hero.json';
+
+const hasImage = Boolean(hero.image && hero.image.trim());
+---
+
+<section id="hero" class="relative overflow-hidden bg-ivory">
+  <div
+    class="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-20 pt-14 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:pb-28 lg:pt-20"
+  >
+    <div class="reveal">
+      <p class="eyebrow">{hero.eyebrow}</p>
+      <h1
+        class="mt-5 text-balance font-display text-4xl leading-[1.05] text-ink sm:text-5xl lg:text-7xl"
+      >
+        {hero.heading}
+      </h1>
+      <p class="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+        {hero.subheading}
+      </p>
+
+      <div class="mt-9 flex flex-wrap items-center gap-4">
+        <a href={brand.bookingUrl} class="btn-primary">
+          {hero.ctaLabel}
+          <Icon name="lucide:arrow-right" class="size-4" />
+        </a>
+        <a
+          href="#galeria"
+          class="link-underline text-sm font-medium tracking-wide text-ink"
+        >
+          Zobacz realizacje
+        </a>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div
+        class="relative aspect-[4/5] overflow-hidden rounded-(--radius-brand) bg-charcoal/90"
+      >
+        {
+          hasImage ? (
+            <Img
+              src={hero.image}
+              alt={`Stylizacja paznokci — ${brand.name}`}
+              class="size-full object-cover"
+              loading="eager"
+              fetchpriority="high"
+              width={800}
+              height={1000}
+              widths={[600, 800, 1000, 1200]}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+            />
+          ) : (
+            <div
+              class="flex size-full flex-col items-center justify-center gap-3 text-cream/70"
+            >
+              <Icon name="lucide:image" class="size-10" />
+              <span class="text-sm tracking-wide">Zdjęcie hero (placeholder)</span>
+            </div>
+          )
+        }
+        <div
+          class="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-bronze via-gold to-gold-soft"
+        >
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

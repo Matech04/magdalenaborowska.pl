@@ -1,0 +1,210 @@
+@import 'tailwindcss';
+
+/* Self-hosted fonts (RODO-friendly, bez Google CDN) */
+@import '@fontsource/playfair-display/400.css';
+@import '@fontsource/playfair-display/500.css';
+@import '@fontsource/playfair-display/600.css';
+@import '@fontsource/playfair-display/700.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+
+/*
+ * ============================================================
+ *  DESIGN TOKENY MARKI — JEDYNE miejsce do podmiany per klient
+ *  Wariant: "Jasny edytorial + złoto" (Magdalena Borowska)
+ * ============================================================
+ */
+@theme {
+  /* Paleta */
+  --color-ivory: #fbf9f6; /* tło bazowe */
+  --color-ink: #16140f; /* tekst near-black */
+  --color-gold: #bf9b5f; /* akcent — szampan/złoto (kolor marki) */
+  --color-gold-soft: #d8c39a; /* złoto rozjaśnione (hover/tła) */
+  --color-bronze: #8c7a56; /* detal — mat złoty */
+  --color-charcoal: #121110; /* sekcje kontrastowe / B&W hero */
+  --color-cream: #f3ede3; /* tekst na ciemnym */
+  --color-line: #e7e0d6; /* delikatne linie/obramowania */
+  --color-muted: #7a7264; /* tekst drugorzędny */
+
+  /* Typografia */
+  --font-display: 'Playfair Display', ui-serif, Georgia, serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Rytm / kształt */
+  --radius-brand: 0.25rem;
+
+  /* Breakpoint kontener */
+  --container-prose: 65ch;
+}
+
+/* ============================================================
+ *  Baza
+ * ============================================================ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Bardzo subtelny grain — tekstura „papieru" dla premium feel */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0.028;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  /* Focus widoczny dla a11y */
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+
+  /* Szanuj prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ============================================================
+ *  Komponenty współdzielone
+ * ============================================================ */
+@layer components {
+  /* Eyebrow z subtelną złotą kreską — edytorialny akcent nad nagłówkiem */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-bronze);
+  }
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 1.75rem;
+    height: 1px;
+    margin-right: 0.7rem;
+    background: linear-gradient(to right, var(--color-gold), var(--color-gold-soft));
+  }
+
+  /* Subtelny scroll-reveal — miększy easing + stagger (delay z JS) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition:
+      opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Przyciski — wspólny styl z „lift" przy hover */
+  .btn,
+  .btn-primary,
+  .btn-gold {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--radius-brand);
+    padding: 0.875rem 1.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.3s ease,
+      box-shadow 0.3s ease;
+    will-change: transform;
+  }
+  .btn-primary {
+    background: var(--color-ink);
+    color: var(--color-ivory);
+  }
+  .btn-primary:hover {
+    background: var(--color-bronze);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -16px rgb(22 20 15 / 0.6);
+  }
+  .btn-gold {
+    background: var(--color-gold);
+    color: var(--color-charcoal);
+  }
+  .btn-gold:hover {
+    background: var(--color-gold-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -16px rgb(191 155 95 / 0.65);
+  }
+
+  /* Link tekstowy z animowanym podkreśleniem */
+  .link-underline {
+    position: relative;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* Subtelny „lift" kart przy hover */
+  .card-lift {
+    transition:
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.35s ease,
+      border-color 0.35s ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 40px -28px rgb(22 20 15 / 0.45);
+  }
+}

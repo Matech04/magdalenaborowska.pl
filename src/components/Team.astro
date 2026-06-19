@@ -1,0 +1,57 @@
+---
+import { Icon } from 'astro-icon/components';
+import Img from './Img.astro';
+import { getCollection } from 'astro:content';
+
+const team = (await getCollection('team')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<section id="zespol" class="scroll-mt-20 border-t border-line bg-ivory py-20 lg:py-28">
+  <div class="mx-auto max-w-6xl px-5 lg:px-8">
+    <div class="reveal max-w-2xl">
+      <p class="eyebrow">Zespół</p>
+      <h2 class="mt-4 text-balance text-3xl text-ink sm:text-4xl lg:text-5xl">
+        Dłonie, które dbają o Twoje
+      </h2>
+      <p class="mt-5 text-lg leading-relaxed text-muted">
+        Cztery stylistki, jedna pasja do detalu.
+      </p>
+    </div>
+
+    <ul class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        team.map((member) => {
+          const hasPhoto = Boolean(member.data.photo && member.data.photo.trim());
+          return (
+            <li class="reveal">
+              <div class="relative aspect-[3/4] overflow-hidden rounded-(--radius-brand) bg-charcoal/90">
+                {hasPhoto ? (
+                  <Img
+                    src={member.data.photo}
+                    alt={`${member.data.name} — ${member.data.role}`}
+                    class="size-full object-cover transition-transform duration-500 hover:scale-[1.03]"
+                    width={600}
+                    height={800}
+                    widths={[300, 450, 600, 800]}
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                  />
+                ) : (
+                  <div class="flex size-full items-center justify-center text-cream/60">
+                    <Icon name="lucide:user-round" class="size-9" />
+                  </div>
+                )}
+              </div>
+              <h3 class="mt-4 font-display text-lg text-ink">{member.data.name}</h3>
+              <p class="text-sm text-gold">{member.data.role}</p>
+              {member.data.bio && (
+                <p class="mt-2 text-sm leading-relaxed text-muted">{member.data.bio}</p>
+              )}
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>

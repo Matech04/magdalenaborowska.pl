@@ -1,0 +1,41 @@
+---
+import { Icon } from 'astro-icon/components';
+import brand from '../content/settings/brand.json';
+import SocialLinks from './SocialLinks.astro';
+
+const year = 2026;
+---
+
+<footer class="border-t border-line bg-charcoal text-cream">
+  <div class="mx-auto max-w-6xl px-5 py-16 lg:px-8">
+    <div class="grid gap-10 md:grid-cols-2 md:items-center">
+      <div>
+        <p class="font-display text-2xl">{brand.name}</p>
+        <p class="mt-2 text-sm text-cream/60">
+          {brand.tagline} · {brand.city}
+        </p>
+      </div>
+
+      <div class="flex flex-col items-start gap-5 md:items-end">
+        <a href={brand.bookingUrl} class="btn-gold">
+          Umów wizytę
+          <Icon name="lucide:arrow-right" class="size-4" />
+        </a>
+
+        <div class="flex flex-col items-start gap-3 md:items-end">
+          <span class="text-xs font-semibold uppercase tracking-[0.18em] text-cream/50">
+            Obserwuj nas
+          </span>
+          <SocialLinks variant="dark" />
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="mt-12 flex flex-col gap-2 border-t border-cream/15 pt-6 text-xs text-cream/50 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© {year} {brand.name}. Wszelkie prawa zastrzeżone.</p>
+      <p>stylizacja paznokci {brand.city}</p>
+    </div>
+  </div>
+</footer>

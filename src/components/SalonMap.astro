@@ -1,0 +1,102 @@
+---
+/*
+ * Mapa salonu — Leaflet + kafelki Carto Positron (jasne, minimalistyczne).
+ * BEZ ciasteczek / trackingu (w przeciwieństwie do embeda Google Maps) — RODO-friendly.
+ * Współrzędne i dane z brand.json (reużywalne per klient).
+ */
+import 'leaflet/dist/leaflet.css';
+import brand from '../content/settings/brand.json';
+
+const [lat, lng] = (brand.geo ?? '')
+  .split(',')
+  .map((s) => Number.parseFloat(s.trim()));
+const hasGeo = Number.isFinite(lat) && Number.isFinite(lng);
+---
+
+{
+  hasGeo && (
+    <div
+      id="salon-map"
+      class="h-72 w-full sm:h-96"
+      data-lat={lat}
+      data-lng={lng}
+      data-label={brand.name}
+      data-address={brand.address}
+      data-url={brand.mapUrl}
+    />
+  )
+}
+
+<script>
+  import L from 'leaflet';
+
+  function initSalonMap() {
+    const el = document.getElementById('salon-map') as HTMLElement | null;
+    if (!el || el.dataset.ready) return;
+
+    const lat = Number.parseFloat(el.dataset.lat ?? '');
+    const lng = Number.parseFloat(el.dataset.lng ?? '');
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    el.dataset.ready = 'true';
+
+    const map = L.map(el, {
+      scrollWheelZoom: false, // nie przejmuj scrolla strony
+      attributionControl: true,
+    }).setView([lat, lng], 16);
+
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      {
+        maxZoom: 20,
+        detectRetina: true,
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      },
+    ).addTo(map);
+
+    const icon = L.divIcon({
+      className: 'salon-pin',
+      html: '<span></span>',
+      iconSize: [22, 22],
+      iconAnchor: [11, 11],
+    });
+
+    const url = el.dataset.url;
+    const popup =
+      `<strong>${el.dataset.label ?? ''}</strong><br>${el.dataset.address ?? ''}` +
+      (url
+        ? `<br><a href="${url}" target="_blank" rel="noopener">Zobacz w Google Maps</a>`
+        : '');
+
+    L.marker([lat, lng], { icon }).addTo(map).bindPopup(popup);
+
+    // przelicz rozmiar (gdy kontener był poza widokiem przy inicjalizacji)
+    window.setTimeout(() => map.invalidateSize(), 200);
+  }
+
+  document.addEventListener('astro:page-load', initSalonMap);
+</script>
+
+<style is:global>
+  /* Pin w kolorze marki */
+  .salon-pin span {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: var(--color-gold, #bf9b5f);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.35);
+  }
+  .leaflet-container {
+    background: var(--color-ivory, #fbf9f6);
+    font-family: var(--font-sans);
+  }
+  .leaflet-popup-content {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+  .leaflet-popup-content a {
+    color: var(--color-bronze, #8c7a56);
+  }
+</style>

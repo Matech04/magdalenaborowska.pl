@@ -1,0 +1,53 @@
+---
+import { Icon } from 'astro-icon/components';
+import Img from './Img.astro';
+import about from '../content/settings/about.json';
+
+const hasImage = Boolean(about.image && about.image.trim());
+---
+
+<section id="o-mnie" class="scroll-mt-20 border-t border-line bg-ivory py-20 lg:py-28">
+  <div class="mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-2 lg:gap-16 lg:px-8">
+    <div class="reveal order-2 lg:order-1">
+      <div class="relative aspect-[4/5] overflow-hidden rounded-(--radius-brand) bg-charcoal/90">
+        {
+          hasImage ? (
+            <Img
+              src={about.image}
+              alt={about.heading}
+              class="size-full object-cover"
+              width={800}
+              height={1000}
+              widths={[600, 800, 1000, 1200]}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+            />
+          ) : (
+            <div class="flex size-full flex-col items-center justify-center gap-3 text-cream/70">
+              <Icon name="lucide:image" class="size-10" />
+              <span class="text-sm tracking-wide">Portret / wnętrze (placeholder)</span>
+            </div>
+          )
+        }
+      </div>
+    </div>
+
+    <div class="reveal order-1 lg:order-2">
+      <p class="eyebrow">{about.eyebrow}</p>
+      <h2 class="mt-4 text-balance text-3xl text-ink sm:text-4xl lg:text-5xl">{about.heading}</h2>
+      <p class="mt-6 text-lg leading-relaxed text-muted">{about.body}</p>
+
+      {
+        about.stats?.length > 0 && (
+          <dl class="mt-10 grid grid-cols-3 gap-6 border-t border-line pt-8">
+            {about.stats.map((stat) => (
+              <div>
+                <dt class="font-display text-2xl text-gold sm:text-3xl">{stat.value}</dt>
+                <dd class="mt-1 text-sm leading-snug text-muted">{stat.label}</dd>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+    </div>
+  </div>
+</section>

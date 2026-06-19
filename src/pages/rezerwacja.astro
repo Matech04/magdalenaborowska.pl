@@ -1,0 +1,40 @@
+---
+import { Icon } from 'astro-icon/components';
+import Layout from '../layouts/Layout.astro';
+import brand from '../content/settings/brand.json';
+
+// CTA „Umów wizytę" prowadzi do osobnego systemu rezerwacji (poza tym repo).
+// Ta strona to grzeczny pomost/redirect na subdomenę.
+---
+
+<Layout title={`Rezerwacja — ${brand.name}`}>
+  <main class="flex min-h-screen flex-col items-center justify-center bg-ivory px-6 text-center">
+    <p class="eyebrow">Rezerwacja</p>
+    <h1 class="mt-5 max-w-xl text-balance font-display text-4xl text-ink sm:text-5xl">
+      Przenosimy Cię do rezerwacji
+    </h1>
+    <p class="mt-5 max-w-md text-lg leading-relaxed text-muted">
+      Za chwilę otworzy się nasz system rezerwacji online, gdzie wybierzesz
+      usługę, termin i sprawdzisz cennik.
+    </p>
+
+    <a
+      href={brand.bookingUrl}
+      class="mt-9 inline-flex items-center gap-2 rounded-(--radius-brand) bg-ink px-7 py-3.5 text-sm font-medium tracking-wide text-ivory transition-colors hover:bg-bronze"
+    >
+      Przejdź do rezerwacji
+      <Icon name="lucide:arrow-right" class="size-4" />
+    </a>
+
+    <a href="/" class="mt-6 text-sm text-muted underline-offset-4 hover:underline">
+      Wróć na stronę główną
+    </a>
+  </main>
+
+  <script is:inline define:vars={{ url: brand.bookingUrl }}>
+    // Łagodne przekierowanie do systemu rezerwacji (subdomena, poza repo).
+    setTimeout(() => {
+      window.location.href = url;
+    }, 1800);
+  </script>
+</Layout>
