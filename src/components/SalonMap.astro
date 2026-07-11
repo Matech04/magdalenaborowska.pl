@@ -4,7 +4,6 @@
  * BEZ ciasteczek / trackingu (w przeciwieństwie do embeda Google Maps) — RODO-friendly.
  * Współrzędne i dane z brand.json (reużywalne per klient).
  */
-import 'leaflet/dist/leaflet.css';
 import brand from '../content/settings/brand.json';
 
 const [lat, lng] = (brand.geo ?? '')
@@ -28,9 +27,9 @@ const hasGeo = Number.isFinite(lat) && Number.isFinite(lng);
 }
 
 <script>
-  import L from 'leaflet';
-
-  function initSalonMap() {
+  // Leaflet (JS ~150 KB + CSS ~8 KB) ładowany LENIWIE — dopiero gdy mapa zbliża
+  // się do ekranu. Trzyma go poza krytyczną ścieżką renderu (FCP/LCP).
+  async function initSalonMap() {
     const el = document.getElementById('salon-map') as HTMLElement | null;
     if (!el || el.dataset.ready) return;
 
@@ -38,6 +37,18 @@ const hasGeo = Number.isFinite(lat) && Number.isFinite(lng);
     const lng = Number.parseFloat(el.dataset.lng ?? '');
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
     el.dataset.ready = 'true';
+
+    // Leaflet CSS z /public (poza bundlerem) — wstrzykiwany runtime, nie trafia
+    // do krytycznego CSS. Wersja zwendorowana: leaflet 1.9.4.
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = '/vendor/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    const { default: L } = await import('leaflet');
 
     const map = L.map(el, {
       scrollWheelZoom: false, // nie przejmuj scrolla strony
@@ -81,7 +92,27 @@ const hasGeo = Number.isFinite(lat) && Number.isFinite(lng);
     window.setTimeout(() => map.invalidateSize(), 200);
   }
 
-  document.addEventListener('astro:page-load', initSalonMap);
+  // Odpal inicjalizację dopiero, gdy mapa jest blisko widoku.
+  function observeSalonMap() {
+    const el = document.getElementById('salon-map');
+    if (!el || el.dataset.ready) return;
+    if (!('IntersectionObserver' in window)) {
+      initSalonMap();
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          initSalonMap();
+        }
+      },
+      { rootMargin: '250px' },
+    );
+    io.observe(el);
+  }
+
+  document.addEventListener('astro:page-load', observeSalonMap);
 </script>
 
 <style is:global>

@@ -26,6 +26,8 @@ interface Props {
   sizes?: string;
   loading?: 'lazy' | 'eager';
   fetchpriority?: 'high' | 'low' | 'auto';
+  /** Jakość kompresji (astro:assets). Domyślnie ~80; dla dużych zdjęć warto ~65. */
+  quality?: number;
 }
 
 const {
@@ -38,6 +40,7 @@ const {
   sizes = '100vw',
   loading = 'lazy',
   fetchpriority,
+  quality = 78,
 } = Astro.props;
 
 // Mapa wszystkich lokalnych zdjęć → metadane (eager: rozwiązane przy buildzie).
@@ -62,6 +65,7 @@ const resolvedWidths = safeWidths.length > 0 ? safeWidths : meta ? [meta.width] 
       class={className}
       widths={resolvedWidths}
       sizes={sizes}
+      quality={quality}
       loading={loading}
       {...(fetchpriority ? { fetchpriority } : {})}
     />

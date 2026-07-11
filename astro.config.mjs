@@ -25,6 +25,9 @@ const withCms = isDev || cmsOnline;
 export default defineConfig({
   site: 'https://magdalenaborowska.pl',
   output: 'static',
+  // Inline CSS w <style> → brak render-blokujących requestów CSS (FCP/LCP).
+  // Leaflet CSS jest ładowany leniwie (mapa pod ekranem), więc nie puchnie krytyczny CSS.
+  build: { inlineStylesheets: 'always' },
   // Adapter (funkcje serwerowe) tylko dla trybu Keystatic online.
   ...(cmsOnline ? { adapter: cloudflare({ imageService: 'compile' }) } : {}),
   integrations: [
