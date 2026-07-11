@@ -1,4 +1,0 @@
-# PRYWATNOŚĆ DO ODSŁONY (CLAUDE.md) — strona nie może być indeksowana.
-# Po oficjalnej odsłonie i zgodzie klientki: poluzuj reguły poniżej.
-User-agent: *
-Disallow: /

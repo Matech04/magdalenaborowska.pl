@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import keystatic from '@keystatic/astro';
 import icon from 'astro-icon';
 import tailwindcss from '@tailwindcss/vite';
+import securityHeaders from './integrations/security-headers.mjs';
 
 /*
  * Tryby buildu:
@@ -29,7 +30,11 @@ export default defineConfig({
   integrations: [
     ...(withCms ? [react(), keystatic()] : []),
     icon(),
-    sitemap(),
+    sitemap({
+      // /rezerwacja to cienki pomost-redirect do systemu rezerwacji — poza indeksem.
+      filter: (page) => !page.includes('/rezerwacja'),
+    }),
+    securityHeaders(),
   ],
   vite: {
     plugins: [tailwindcss()],

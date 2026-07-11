@@ -1,19 +1,84 @@
 ---
 import { ClientRouter } from 'astro:transitions';
+import { getImage } from 'astro:assets';
 import brand from '../content/settings/brand.json';
+import heroImage from '../assets/images/hero/image.jpg';
 import '../styles/global.css';
 
 interface Props {
   title?: string;
   description?: string;
+  noindex?: boolean;
 }
 
 const {
   title = `${brand.name} — stylizacja paznokci & szkolenia, ${brand.city}`,
   description = `Premium stylizacja paznokci i szkolenia — salon ${brand.name} w ${brand.city}. Manicure, przedłużanie, nail art. Umów wizytę.`,
+  noindex: noindexProp = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+/*
+ * PRYWATNOŚĆ / INDEKSOWANIE (białe etykiety):
+ * Domyślnie strona jest indeksowalna w produkcji. Żeby ją ponownie ukryć
+ * (np. kolejny klient-niespodzianka przed odsłoną) ustaw PUBLIC_NOINDEX=true.
+ * W dev zawsze noindex, żeby nie zaindeksować podglądu.
+ */
+const noindex =
+  noindexProp ||
+  import.meta.env.DEV ||
+  import.meta.env.PUBLIC_NOINDEX === 'true';
+
+// OG image (absolutny URL) z hero — 1200 px, jpeg.
+const ogGen = await getImage({ src: heroImage, width: 1200, format: 'jpeg' });
+const ogImage = new URL(ogGen.src, Astro.site).href;
+
+// Godziny → schema.org OpeningHoursSpecification
+const DAY_MAP: Record<string, string> = {
+  poniedziałek: 'Monday',
+  wtorek: 'Tuesday',
+  środa: 'Wednesday',
+  czwartek: 'Thursday',
+  piątek: 'Friday',
+  sobota: 'Saturday',
+  niedziela: 'Sunday',
+};
+const DAY_ORDER = Object.keys(DAY_MAP);
+const pad = (t: string) => {
+  const [h, m] = t.trim().split(':');
+  return `${h.padStart(2, '0')}:${(m ?? '00').padStart(2, '0')}`;
+};
+const openingHours = (brand.hours ?? [])
+  .map((h) => {
+    const value = (h.value ?? '').toLowerCase();
+    if (/nieczynne|zamkni/.test(value)) return null;
+    const times = value.split(/[–-]/).map((s) => s.trim());
+    if (times.length < 2) return null;
+    const dayParts = h.day.toLowerCase().split(/[–-]/).map((s) => s.trim());
+    let days: string[] = [];
+    if (dayParts.length === 2) {
+      const from = DAY_ORDER.indexOf(dayParts[0]);
+      const to = DAY_ORDER.indexOf(dayParts[1]);
+      if (from !== -1 && to !== -1)
+        days = DAY_ORDER.slice(from, to + 1).map((d) => DAY_MAP[d]);
+    } else {
+      const d = DAY_MAP[dayParts[0]];
+      if (d) days = [d];
+    }
+    if (!days.length) return null;
+    return {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: days,
+      opens: pad(times[0]),
+      closes: pad(times[1]),
+    };
+  })
+  .filter(Boolean);
+
+const [lat, lng] = (brand.geo ?? '')
+  .split(',')
+  .map((s) => Number.parseFloat(s.trim()));
 
 // JSON-LD — lokalne SEO „stylizacja paznokci Zielona Góra"
 const jsonLd = {
@@ -22,6 +87,7 @@ const jsonLd = {
   name: brand.name,
   description,
   url: Astro.site?.href,
+  image: ogImage,
   ...(brand.phone ? { telephone: brand.phone } : {}),
   ...(brand.email ? { email: brand.email } : {}),
   address: {
@@ -30,7 +96,11 @@ const jsonLd = {
     addressCountry: 'PL',
     streetAddress: brand.address,
   },
+  ...(Number.isFinite(lat) && Number.isFinite(lng)
+    ? { geo: { '@type': 'GeoCoordinates', latitude: lat, longitude: lng } }
+    : {}),
   areaServed: brand.city,
+  ...(openingHours.length ? { openingHoursSpecification: openingHours } : {}),
   ...(brand.mapUrl ? { hasMap: brand.mapUrl } : {}),
   sameAs: (brand.social ?? []).map((s) => s.url).filter(Boolean),
 };
@@ -43,9 +113,17 @@ const jsonLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
-    <!-- PRYWATNOŚĆ DO ODSŁONY: cała strona noindex (CLAUDE.md) -->
-    <meta name="robots" content="noindex, nofollow" />
-    <meta name="googlebot" content="noindex, nofollow" />
+    <!-- Indeksowanie: sterowane env (PUBLIC_NOINDEX). Patrz frontmatter. -->
+    {
+      noindex ? (
+        <>
+          <meta name="robots" content="noindex, nofollow" />
+          <meta name="googlebot" content="noindex, nofollow" />
+        </>
+      ) : (
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+      )
+    }
 
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -54,9 +132,16 @@ const jsonLd = {
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pl_PL" />
+    <meta property="og:site_name" content={brand.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={`${brand.name} — stylizacja paznokci, ${brand.city}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <meta name="theme-color" content="#fbf9f6" />
 
     <script
