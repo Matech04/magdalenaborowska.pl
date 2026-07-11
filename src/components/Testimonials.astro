@@ -20,9 +20,9 @@ const items = (await getCollection('testimonials')).sort(
       {
         items.map((item) => (
           <li class="card-lift reveal flex flex-col rounded-(--radius-brand) border border-line bg-ivory p-7 hover:border-gold/40">
-            <div class="flex gap-1 text-gold" aria-label={`Ocena: ${item.data.rating} na 5`}>
+            <div class="flex gap-1 text-gold" role="img" aria-label={`Ocena: ${item.data.rating} na 5`}>
               {Array.from({ length: item.data.rating }).map(() => (
-                <Icon name="lucide:star" class="size-4 fill-current" />
+                <Icon name="lucide:star" class="size-4 fill-current" aria-hidden="true" />
               ))}
             </div>
             <blockquote class="mt-5 flex-1 text-lg leading-relaxed text-ink">

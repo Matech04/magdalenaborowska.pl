@@ -41,7 +41,7 @@ const hasImage = Boolean(about.image && about.image.trim());
           <dl class="mt-10 grid grid-cols-3 gap-6 border-t border-line pt-8">
             {about.stats.map((stat) => (
               <div>
-                <dt class="font-display text-2xl text-gold sm:text-3xl">{stat.value}</dt>
+                <dt class="font-display text-2xl text-bronze sm:text-3xl">{stat.value}</dt>
                 <dd class="mt-1 text-sm leading-snug text-muted">{stat.label}</dd>
               </div>
             ))}

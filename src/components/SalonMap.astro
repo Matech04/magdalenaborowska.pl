@@ -62,13 +62,20 @@ const hasGeo = Number.isFinite(lat) && Number.isFinite(lng);
     });
 
     const url = el.dataset.url;
+    const label = [el.dataset.label, el.dataset.address]
+      .filter(Boolean)
+      .join(' — ');
     const popup =
       `<strong>${el.dataset.label ?? ''}</strong><br>${el.dataset.address ?? ''}` +
       (url
         ? `<br><a href="${url}" target="_blank" rel="noopener">Zobacz w Google Maps</a>`
         : '');
 
-    L.marker([lat, lng], { icon }).addTo(map).bindPopup(popup);
+    const marker = L.marker([lat, lng], { icon, title: label, alt: label })
+      .addTo(map)
+      .bindPopup(popup);
+    // Marker Leaflet dostaje role="button" + tabindex — nadaj mu nazwę dostępną (a11y).
+    marker.getElement()?.setAttribute('aria-label', label);
 
     // przelicz rozmiar (gdy kontener był poza widokiem przy inicjalizacji)
     window.setTimeout(() => map.invalidateSize(), 200);

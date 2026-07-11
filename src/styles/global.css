@@ -21,11 +21,11 @@
   --color-ink: #16140f; /* tekst near-black */
   --color-gold: #bf9b5f; /* akcent — szampan/złoto (kolor marki) */
   --color-gold-soft: #d8c39a; /* złoto rozjaśnione (hover/tła) */
-  --color-bronze: #8c7a56; /* detal — mat złoty */
+  --color-bronze: #6e5f3d; /* detal — mat złoty (tekst na jasnym: kontrast AA 5.9:1) */
   --color-charcoal: #121110; /* sekcje kontrastowe / B&W hero */
   --color-cream: #f3ede3; /* tekst na ciemnym */
   --color-line: #e7e0d6; /* delikatne linie/obramowania */
-  --color-muted: #7a7264; /* tekst drugorzędny */
+  --color-muted: #726a5b; /* tekst drugorzędny (kontrast AA 5.1:1 na ivory) */
 
   /* Typografia */
   --font-display: 'Playfair Display', ui-serif, Georgia, serif;

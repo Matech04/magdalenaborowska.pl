@@ -28,55 +28,52 @@ import SocialLinks from './SocialLinks.astro';
 
     <div class="reveal">
       <dl class="space-y-6">
-        <div class="flex items-start gap-4">
-          <Icon name="lucide:map-pin" class="mt-0.5 size-5 shrink-0 text-gold" />
-          <div>
-            <dt class="text-sm font-semibold text-ink">Adres</dt>
-            <dd class="mt-1 text-muted">{brand.address}</dd>
-            {
-              brand.mapUrl && (
-                <dd class="mt-1">
-                  <a
-                    href={brand.mapUrl}
-                    class="link-underline text-sm text-bronze"
-                  >
-                    Zobacz na mapie
-                  </a>
-                </dd>
-              )
-            }
-          </div>
+        <div>
+          <dt class="flex items-center gap-2 text-sm font-semibold text-ink">
+            <Icon name="lucide:map-pin" class="size-4 shrink-0 text-gold" aria-hidden="true" />
+            Adres
+          </dt>
+          <dd class="mt-1 pl-6 text-muted">{brand.address}</dd>
+          {
+            brand.mapUrl && (
+              <dd class="mt-1 pl-6">
+                <a href={brand.mapUrl} class="link-underline text-sm text-bronze">
+                  Zobacz na mapie
+                </a>
+              </dd>
+            )
+          }
         </div>
 
         {
           brand.phone && (
-            <div class="flex items-start gap-4">
-              <Icon name="lucide:phone" class="mt-0.5 size-5 shrink-0 text-gold" />
-              <div>
-                <dt class="text-sm font-semibold text-ink">Telefon</dt>
-                <dd class="mt-1 text-muted">
-                  <a href={`tel:${brand.phone.replace(/\s+/g, '')}`}>{brand.phone}</a>
-                </dd>
-              </div>
+            <div>
+              <dt class="flex items-center gap-2 text-sm font-semibold text-ink">
+                <Icon name="lucide:phone" class="size-4 shrink-0 text-gold" aria-hidden="true" />
+                Telefon
+              </dt>
+              <dd class="mt-1 pl-6 text-muted">
+                <a href={`tel:${brand.phone.replace(/\s+/g, '')}`}>{brand.phone}</a>
+              </dd>
             </div>
           )
         }
 
-        <div class="flex items-start gap-4">
-          <Icon name="lucide:clock" class="mt-0.5 size-5 shrink-0 text-gold" />
-          <div>
-            <dt class="text-sm font-semibold text-ink">Godziny otwarcia</dt>
-            <dd class="mt-1 space-y-1 text-muted">
-              {
-                (brand.hours ?? []).map((h) => (
-                  <div class="flex justify-between gap-6">
-                    <span>{h.day}</span>
-                    <span class="text-ink">{h.value}</span>
-                  </div>
-                ))
-              }
-            </dd>
-          </div>
+        <div>
+          <dt class="flex items-center gap-2 text-sm font-semibold text-ink">
+            <Icon name="lucide:clock" class="size-4 shrink-0 text-gold" aria-hidden="true" />
+            Godziny otwarcia
+          </dt>
+          <dd class="mt-1 space-y-1 pl-6 text-muted">
+            {
+              (brand.hours ?? []).map((h) => (
+                <div class="flex justify-between gap-6">
+                  <span>{h.day}</span>
+                  <span class="text-ink">{h.value}</span>
+                </div>
+              ))
+            }
+          </dd>
         </div>
       </dl>
     </div>
